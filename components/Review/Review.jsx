@@ -46,12 +46,17 @@ const Reviews = () => {
   const index = Math.round(progress * (reviews.length - 1));
 
   return (
-    <section id="reviews" ref={sectionRef} className="relative h-[300vh]">
-      <div
-        className="sticky top-0 flex h-screen items-center overflow-hidden bg-cover bg-center"
-        style={{ backgroundImage: "url('/banner-3.webp')" }}
-      >
-        <div className="absolute inset-0 bg-black/75" />
+    <section
+      id="reviews"
+      ref={sectionRef}
+      className="relative h-[300vh] bg-cover bg-fixed bg-center"
+      style={{ backgroundImage: "url('/banner-3.webp')" }}
+    >
+      <div className="absolute inset-0 bg-black/55" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-[#15110E] to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#15110E] to-transparent" />
+
+      <div className="sticky top-0 flex h-screen items-center overflow-hidden">
 
         <div className="relative z-10 mx-auto w-full max-w-5xl px-6">
           <div className="overflow-hidden">
