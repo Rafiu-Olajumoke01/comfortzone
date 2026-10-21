@@ -1,2 +1,16 @@
 @import "tailwindcss";
 
+@theme {
+  --color-cream: #F7F2EA;
+  --color-surface: #FFFFFF;
+  --color-ink: #2B2118;
+  --color-muted: #6E6256;
+  --color-gold: #B89B5E;
+  --color-gold-dark: #8F6F2E;
+  --color-gold-hover: #A38650;
+}
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+}
