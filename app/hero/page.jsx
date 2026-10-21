@@ -44,23 +44,19 @@ export default function Hero() {
           </div>
         ))}
 
-        {/* lighter overlay so the photo breathes */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/25 to-black/50" />
-
-        {/* soft fade into the cream page below */}
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-cream" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/80" />
 
         <div className="relative z-10 flex flex-col items-center px-6 pt-20 text-center text-white">
           <div className="flex items-center gap-3">
-            <div className="h-px w-12 bg-gold" />
-            <div className="h-2 w-2 rotate-45 bg-gold" />
-            <div className="h-px w-12 bg-gold" />
+            <div className="h-px w-12 bg-[#B89B5E]" />
+            <div className="h-2 w-2 rotate-45 bg-[#B89B5E]" />
+            <div className="h-px w-12 bg-[#B89B5E]" />
           </div>
 
           <span
             className={`${playfair.className} mt-5 text-4xl font-bold uppercase tracking-[0.25em] drop-shadow-lg md:text-6xl`}
           >
-            Comfort <span className="text-gold">Zone</span>
+            Comfort <span className="text-[#B89B5E]">Zone</span>
           </span>
 
           <h1
@@ -69,7 +65,7 @@ export default function Hero() {
             Great Cuts, Clean Style, Total Comfort Every Single Visit
           </h1>
 
-          <p className="mt-6 max-w-xl text-base leading-relaxed text-white/90 drop-shadow">
+          <p className="mt-6 max-w-xl text-base leading-relaxed text-gray-300">
             Welcome to Comfort Zone, where every cut, trim and style is done with
             care, so you walk out looking good and feeling even better.
           </p>
@@ -77,13 +73,13 @@ export default function Hero() {
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/services"
-              className="bg-gold px-8 py-4 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-gold-hover"
+              className="bg-[#B89B5E] px-8 py-4 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-[#a38650]"
             >
               Our Services
             </Link>
             <Link
               href="/booking"
-              className="border border-white px-8 py-4 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-white hover:text-ink"
+              className="border border-white px-8 py-4 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-white hover:text-black"
             >
               Book Now
             </Link>
@@ -94,7 +90,7 @@ export default function Hero() {
           type="button"
           onClick={prev}
           aria-label="Previous slide"
-          className="absolute left-4 top-1/2 z-10 -translate-y-1/2 text-3xl text-white hover:text-gold"
+          className="absolute left-4 top-1/2 z-10 -translate-y-1/2 text-3xl text-white hover:text-[#B89B5E]"
         >
           &#10094;
         </button>
@@ -102,7 +98,7 @@ export default function Hero() {
           type="button"
           onClick={next}
           aria-label="Next slide"
-          className="absolute right-4 top-1/2 z-10 -translate-y-1/2 text-3xl text-white hover:text-gold"
+          className="absolute right-4 top-1/2 z-10 -translate-y-1/2 text-3xl text-white hover:text-[#B89B5E]"
         >
           &#10095;
         </button>
