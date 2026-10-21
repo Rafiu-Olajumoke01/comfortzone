@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Playfair_Display } from "next/font/google";
 import Navbar from "@/components/Navbar/Navbar";
+
+const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "500", "700"] });
 
 const slides = ["/banner-4.webp", "/banner-3.webp"];
 
@@ -13,7 +16,7 @@ export default function Hero() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIndex((i) => (i + 1) % slides.length);
-    }, 6000);
+    }, 7000);
     return () => clearTimeout(timer);
   }, [index]);
 
@@ -23,73 +26,75 @@ export default function Hero() {
   return (
     <>
       <Navbar />
-      <section className="relative flex min-h-screen items-center overflow-hidden">
+      <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
         {slides.map((src, i) => (
           <div
             key={src}
-            className={`absolute inset-0 transition-opacity duration-700 ${
+            className={`absolute inset-0 transition-opacity duration-1000 ${
               i === index ? "opacity-100" : "opacity-0"
             }`}
-            aria-hidden={i !== index}
           >
             <Image
               src={src}
-              alt="Barber giving a precision haircut at Comfort Zone"
+              alt="Comfort Zone"
               fill
-              priority
-              sizes="100vw"
-              quality={70}
+              priority={i === 0}
               className="object-cover"
             />
           </div>
         ))}
 
-        {/* darker on the left where the text sits, lighter on the right */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/10" />
+        {/* lighter overlay so the photo breathes */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/25 to-black/50" />
 
         {/* soft fade into the cream page below */}
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-cream" />
 
-        <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pt-24">
-          <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-gold/50 bg-black/30 px-4 py-1.5 text-xs font-semibold text-gold backdrop-blur">
-              <span className="h-1.5 w-1.5 rounded-full bg-gold" />
-              Premium barbershop · Book your chair today
-            </span>
+        <div className="relative z-10 flex flex-col items-center px-6 pt-20 text-center text-white">
+          <div className="flex items-center gap-3">
+            <div className="h-px w-12 bg-gold" />
+            <div className="h-2 w-2 rotate-45 bg-gold" />
+            <div className="h-px w-12 bg-gold" />
+          </div>
 
-            <h1 className="mt-6 text-4xl font-bold leading-tight text-white md:text-6xl">
-              Great cuts, clean style,
-              <span className="block text-gold">total comfort every visit.</span>
-            </h1>
+          <span
+            className={`${playfair.className} mt-5 text-4xl font-bold uppercase tracking-[0.25em] drop-shadow-lg md:text-6xl`}
+          >
+            Comfort <span className="text-gold">Zone</span>
+          </span>
 
-            <p className="mt-6 max-w-lg text-base leading-relaxed text-white/85 md:text-lg">
-              Welcome to Comfort Zone, where every cut, trim and style is done with
-              care, so you walk out looking good and feeling even better.
-            </p>
+          <h1
+            className={`${playfair.className} mt-10 max-w-4xl text-4xl font-normal leading-tight drop-shadow-lg md:text-6xl`}
+          >
+            Great Cuts, Clean Style, Total Comfort Every Single Visit
+          </h1>
 
-            <div className="mt-10 flex flex-wrap items-center gap-4">
-              <Link
-                href="/booking"
-                className="rounded-lg bg-gold px-8 py-4 text-sm font-semibold text-white shadow-lg shadow-gold/30 transition-colors hover:bg-gold-hover"
-              >
-                Book Now →
-              </Link>
-              <Link
-                href="/services"
-                className="rounded-lg border border-white/40 px-8 py-4 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-ink"
-              >
-                Our Services
-              </Link>
-            </div>
+          <p className="mt-6 max-w-xl text-base leading-relaxed text-white/90 drop-shadow">
+            Welcome to Comfort Zone, where every cut, trim and style is done with
+            care, so you walk out looking good and feeling even better.
+          </p>
+
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+            <Link
+              href="/services"
+              className="bg-gold px-8 py-4 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-gold-hover"
+            >
+              Our Services
+            </Link>
+            <Link
+              href="/booking"
+              className="border border-white px-8 py-4 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-white hover:text-ink"
+            >
+              Book Now
+            </Link>
           </div>
         </div>
 
-        {/* arrows (desktop) */}
         <button
           type="button"
           onClick={prev}
           aria-label="Previous slide"
-          className="absolute left-4 top-1/2 z-10 hidden -translate-y-1/2 text-3xl text-white/70 transition-colors hover:text-gold md:block"
+          className="absolute left-4 top-1/2 z-10 -translate-y-1/2 text-3xl text-white hover:text-gold"
         >
           &#10094;
         </button>
@@ -97,25 +102,10 @@ export default function Hero() {
           type="button"
           onClick={next}
           aria-label="Next slide"
-          className="absolute right-4 top-1/2 z-10 hidden -translate-y-1/2 text-3xl text-white/70 transition-colors hover:text-gold md:block"
+          className="absolute right-4 top-1/2 z-10 -translate-y-1/2 text-3xl text-white hover:text-gold"
         >
           &#10095;
         </button>
-
-        {/* slide dots */}
-        <div className="absolute bottom-10 left-1/2 z-10 flex -translate-x-1/2 gap-2">
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => setIndex(i)}
-              aria-label={`Go to slide ${i + 1}`}
-              className={`h-1.5 rounded-full transition-all duration-300 ${
-                i === index ? "w-8 bg-gold" : "w-4 bg-white/50 hover:bg-white/80"
-              }`}
-            />
-          ))}
-        </div>
       </section>
     </>
   );
