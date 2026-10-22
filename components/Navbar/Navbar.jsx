@@ -17,11 +17,13 @@ const links = [
   { label: "Blog", href: "/blog" },
 ];
 
-export default function Navbar() {
+const Navbar = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className={`${playfair.className} absolute inset-x-0 top-0 z-50`}>
+    <header
+      className={`${playfair.className} absolute inset-x-0 top-0 z-50 bg-gradient-to-b from-black/60 to-transparent`}
+    >
       <nav className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-5 lg:px-10">
         <Link
           href="/"
@@ -54,7 +56,7 @@ export default function Navbar() {
       </nav>
 
       {open && (
-        <ul className="flex flex-col gap-5 bg-[#0E0D0C] px-6 py-6 lg:hidden">
+        <ul className="flex flex-col gap-5 bg-black/70 px-6 py-6 backdrop-blur-md lg:hidden">
           {links.map((link) => (
             <li key={link.href}>
               <Link
@@ -70,4 +72,6 @@ export default function Navbar() {
       )}
     </header>
   );
-}
+};
+
+export default Navbar;
