@@ -22,12 +22,12 @@ const Navbar = () => {
 
   return (
     <header
-      className={`${playfair.className} absolute inset-x-0 top-0 z-50 bg-gradient-to-b from-black/60 to-transparent`}
+      className={`${playfair.className} absolute inset-x-0 top-0 z-50 border-b border-white/50 bg-white/40 backdrop-blur-md`}
     >
       <nav className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-5 lg:px-10">
         <Link
           href="/"
-          className="text-2xl font-semibold uppercase tracking-[0.15em] text-white"
+          className="text-2xl font-semibold uppercase tracking-[0.15em] text-[#2B2118]"
         >
           Comfort <span className="text-[#B89B5E]">Zone</span>
         </Link>
@@ -37,7 +37,7 @@ const Navbar = () => {
             <li key={link.href}>
               <Link
                 href={link.href}
-                className="text-base text-white transition-colors hover:text-[#B89B5E]"
+                className="text-base text-[#2B2118] transition-colors hover:text-[#B89B5E]"
               >
                 {link.label}
               </Link>
@@ -49,20 +49,20 @@ const Navbar = () => {
           type="button"
           onClick={() => setOpen(!open)}
           aria-label="Toggle menu"
-          className="text-base uppercase tracking-widest text-white lg:hidden"
+          className="text-base uppercase tracking-widest text-[#2B2118] lg:hidden"
         >
           {open ? "Close" : "Menu"}
         </button>
       </nav>
 
       {open && (
-        <ul className="flex flex-col gap-5 bg-black/70 px-6 py-6 backdrop-blur-md lg:hidden">
+        <ul className="flex flex-col gap-5 bg-white/85 px-6 py-6 backdrop-blur-xl lg:hidden">
           {links.map((link) => (
             <li key={link.href}>
               <Link
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="text-lg text-white transition-colors hover:text-[#B89B5E]"
+                className="text-lg text-[#2B2118] transition-colors hover:text-[#B89B5E]"
               >
                 {link.label}
               </Link>

@@ -30,7 +30,7 @@ const Hero = () => {
   return (
     <>
       <Navbar />
-      <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
+      <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#FAF6F0]">
         {slides.map((src, i) => (
           <div
             key={src}
@@ -48,9 +48,9 @@ const Hero = () => {
           </div>
         ))}
 
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#FAF6F0]/70 via-[#FAF6F0]/55 to-[#FAF6F0]/90" />
 
-        <div className="relative z-10 flex flex-col items-center px-6 pt-28 text-center text-white">
+        <div className="relative z-10 flex flex-col items-center px-6 pt-32 text-center text-[#2B2118]">
           <div className="flex items-center gap-3">
             <div className="h-px w-12 bg-[#B89B5E]" />
             <div className="h-2 w-2 rotate-45 bg-[#B89B5E]" />
@@ -58,23 +58,31 @@ const Hero = () => {
           </div>
 
           <h1
-            className={`${playfair.className} mt-6 max-w-4xl text-4xl font-normal leading-tight drop-shadow-lg md:text-6xl`}
+            className={`${playfair.className} mt-6 max-w-4xl text-4xl font-normal leading-tight md:text-6xl`}
           >
             Great Cuts, Clean Style,{" "}
             <span className="italic text-[#B89B5E]">Total Comfort</span>
           </h1>
 
-          <p className="mt-6 max-w-xl text-base leading-relaxed text-gray-300">
+          <p className="mt-6 max-w-xl text-base leading-relaxed text-[#5C4F42]">
             Every cut, trim and style is done with care, so you walk out looking
             good and feeling even better.
           </p>
 
-          <Link
-            href="/booking"
-            className="mt-8 rounded-full bg-[#B89B5E] px-10 py-4 text-sm font-semibold uppercase tracking-wider text-white shadow-lg transition-colors hover:bg-[#a38650]"
-          >
-            Book Appointment
-          </Link>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <Link
+              href="/booking"
+              className="rounded-full bg-[#B89B5E] px-10 py-4 text-sm font-semibold uppercase tracking-wider text-white shadow-lg transition-colors hover:bg-[#a38650]"
+            >
+              Book Appointment
+            </Link>
+            <Link
+              href="/services"
+              className="rounded-full border border-[#2B2118]/40 bg-white/40 px-10 py-4 text-sm font-semibold uppercase tracking-wider text-[#2B2118] backdrop-blur-md transition-colors hover:bg-white/80"
+            >
+              Our Services
+            </Link>
+          </div>
         </div>
 
         <div className="relative z-10 mt-14 grid w-full max-w-5xl grid-cols-1 gap-5 px-6 md:grid-cols-3">
@@ -82,11 +90,11 @@ const Hero = () => {
             <Link
               key={title}
               href="/services"
-              className="rounded-2xl border border-white/20 bg-white/10 p-7 text-center text-white shadow-xl backdrop-blur-md transition hover:-translate-y-1 hover:border-[#B89B5E]/60 hover:bg-white/15"
+              className="rounded-2xl border border-white/70 bg-white/40 p-7 text-center text-[#2B2118] shadow-[0_8px_32px_rgba(43,33,24,0.12)] backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/60"
             >
               <Icon className="mx-auto h-8 w-8 text-[#B89B5E]" />
               <h3 className={`${playfair.className} mt-4 text-xl`}>{title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-gray-300">{text}</p>
+              <p className="mt-2 text-sm leading-relaxed text-[#5C4F42]">{text}</p>
               <span className="mt-4 inline-block text-xs font-semibold uppercase tracking-wider text-[#B89B5E]">
                 {price} &rarr;
               </span>
@@ -102,7 +110,7 @@ const Hero = () => {
               onClick={() => setIndex(i)}
               aria-label={`Go to slide ${i + 1}`}
               className={`h-2 rounded-full transition-all ${
-                i === index ? "w-8 bg-[#B89B5E]" : "w-2 bg-white/50 hover:bg-white"
+                i === index ? "w-8 bg-[#B89B5E]" : "w-2 bg-[#2B2118]/30 hover:bg-[#2B2118]/60"
               }`}
             />
           ))}
