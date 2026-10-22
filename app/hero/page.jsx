@@ -48,7 +48,7 @@ const Hero = () => {
           </div>
         ))}
 
-        <div className="absolute inset-0 bg-gradient-to-b from-[#FAF6F0]/70 via-[#FAF6F0]/55 to-[#FAF6F0]/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/15 via-white/5 to-white/80" />
 
         <div className="relative z-10 flex flex-col items-center px-6 pt-32 text-center text-[#2B2118]">
           <div className="flex items-center gap-3">
