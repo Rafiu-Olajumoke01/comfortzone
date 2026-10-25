@@ -1,99 +1,91 @@
 import Image from "next/image";
-import { Playfair_Display } from "next/font/google";
 
-const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "500", "600"] });
-
+// Put the images in /public and match the names. Confirm the prices with the client.
 const services = [
-  {
-    name: "Classic Haircut",
-    price: "₦3,000",
-    description: "A clean, neat cut shaped to your head and your style.",
-    src: "/service-1.webp",
-  },
-  {
-    name: "Beard Trim",
-    price: "₦2,000",
-    description: "Sharp lines and an even shape, so your beard always looks tidy.",
-    src: "/service-2.webp",
-  },
-  {
-    name: "Skin Fade",
-    price: "₦3,500",
-    description: "A smooth fade blended with care for a modern, sharp finish.",
-    src: "/service-3.webp",
-  },
-  {
-    name: "Hot Towel Shave",
-    price: "₦4,000",
-    description: "A warm towel and a close shave that leaves your skin fresh.",
-    src: "/service-4.webp",
-  },
-  {
-    name: "Hair & Beard Combo",
-    price: "₦5,000",
-    description: "Haircut and beard trim in one visit, so you leave fully done.",
-    src: "/service-5.webp",
-  },
-  {
-    name: "Kids Haircut",
-    price: "₦2,500",
-    description: "A gentle, friendly cut that keeps little ones calm and happy.",
-    src: "/service-6.webp",
-  },
+  { name: "Haircuts", price: "₦3,000", image: "/haircuts.jpg" },
+  { name: "Beard Trim", price: "₦2,000", image: "/beard.jpg" },
+  { name: "Line Up", price: "₦2,000", image: "/hairline.jpg" },
+  { name: "Fade", price: "₦3,500", image: "/fade.jpg" },
+  { name: "Shape Up", price: "₦2,000", image: "/newwomen.jpg" },
+  { name: "Kids Cut", price: "₦2,000", image: "/kids.jpg" },
+  { name: "Women's Cut", price: "₦5,000", image: "/women.jpg" },
+  { name: "Home Service", price: "₦10,000", image: "/homeservice.jpg" },
 ];
+
+const serif = { fontFamily: "'Playfair Display', Georgia, serif" };
 
 export default function Services() {
   return (
-    <section className="overflow-hidden bg-[#14100D] px-6 py-24 text-white lg:px-10">
-      <div className="mx-auto max-w-[1400px]">
-        <div data-aos="fade-left" className="text-center">
-          <span className="text-sm font-medium uppercase tracking-[0.4em] text-[#B89B5E]">
-            Discover
-          </span>
-          <h2
-            className={`${playfair.className} mt-4 text-4xl font-normal md:text-6xl`}
+    <section
+      id="services"
+      className="overflow-hidden bg-black py-20 text-white lg:py-28"
+    >
+      <div className="mx-auto max-w-[1400px] px-4 md:px-8">
+        {/* Heading */}
+        <div className="max-w-2xl">
+          <p
+            data-aos="fade-right"
+            className="flex items-center gap-4 text-2xl font-extrabold uppercase tracking-[0.2em] text-[#fdb515] sm:text-3xl lg:text-4xl"
           >
+            <span className="h-1 w-14 bg-[#fdb515]" />
             Our Services
-          </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-gray-300">
-            From clean cuts to sharp beard trims, every service at Comfort Zone
-            is done with care, so you leave looking your best.
           </p>
+
+          <h2
+            data-aos="fade-right"
+            data-aos-delay="150"
+            className="mt-4 text-4xl font-semibold leading-[1.15] sm:text-5xl lg:text-6xl"
+            style={serif}
+          >
+            Pick your style.
+          </h2>
         </div>
 
-        <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {services.map((service, i) => (
-            <div
-              key={service.name}
-              data-aos="fade-left"
-              data-aos-delay={(i % 3) * 150}
-              className="group relative aspect-square overflow-hidden"
+        {/* Image grid */}
+        <ul className="mt-14 grid grid-cols-2 gap-3 md:gap-5 lg:grid-cols-4">
+          {services.map(({ name, price, image }, i) => (
+            <li
+              key={name}
+              data-aos="zoom-in"
+              data-aos-delay={(i % 4) * 120}
             >
-              <Image
-                src={service.src}
-                alt={service.name}
-                fill
-                className="object-cover grayscale transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+              <div className="group relative block aspect-[3/4] overflow-hidden bg-neutral-900">
+                <Image
+                  src={image}
+                  alt={name}
+                  fill
+                  sizes="(min-width: 1024px) 25vw, 50vw"
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
+                />
 
-              <div className="absolute inset-x-0 bottom-0 p-8">
+                {/* Dark layer */}
+                <div
+                  aria-hidden
+                  className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent transition-colors duration-500 lg:from-black/0 lg:via-black/0 lg:group-hover:from-black/90 lg:group-hover:via-black/50"
+                />
+
+                {/* Title + amount (always shown on phones, pops up on hover on desktop) */}
+                <div className="absolute inset-x-0 bottom-0 p-4 transition-all duration-500 md:p-6 lg:translate-y-6 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100">
+                  <h3 className="text-base font-bold uppercase tracking-wide md:text-xl">
+                    {name}
+                  </h3>
+                  <p
+                    className="mt-1 text-xl font-bold text-[#fdb515] md:text-2xl"
+                    style={serif}
+                  >
+                    {price}
+                  </p>
+                </div>
+
+                {/* Gold line that grows on hover */}
                 <span
-                  className={`${playfair.className} text-5xl text-[#B89B5E]`}
-                >
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <h3 className={`${playfair.className} mt-2 text-2xl`}>
-                  {service.name}
-                </h3>
-                <p className="mt-1 text-gray-300">{service.price}</p>
-                <p className="mt-4 max-h-32 overflow-hidden leading-7 text-gray-300 opacity-100 transition-all duration-500 md:mt-0 md:max-h-0 md:opacity-0 md:group-hover:mt-4 md:group-hover:max-h-32 md:group-hover:opacity-100">
-                  {service.description}
-                </p>
+                  aria-hidden
+                  className="absolute inset-x-0 bottom-0 h-1 origin-left scale-x-0 bg-[#fdb515] transition-transform duration-500 group-hover:scale-x-100"
+                />
               </div>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );

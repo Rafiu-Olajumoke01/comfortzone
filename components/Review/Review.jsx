@@ -1,72 +1,173 @@
-import { Playfair_Display } from "next/font/google";
+"use client";
 
-const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "500", "700"] });
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import AOS from "aos";
+import "aos/dist/aos.css";
+import { Quote, Star } from "lucide-react";
 
+// Background image: it must be inside /public, match the name and extension
+const BG_IMAGE = "/background.jpg";
+
+const AUTO_SLIDE_MS = 6000;
+
+// NOTE: swap these for words your real customers have said (WhatsApp, Instagram, Google)
 const reviews = [
   {
-    name: "Ibrahim Adisa",
-    service: "Modern Fade",
+    name: "Chinedu Okafor",
+    service: "Fade",
     rating: 5,
-    text: "Great service from start to finish. The barber understood the style I wanted and delivered a clean cut. You can really tell they care about quality.",
+    text: "Best fade I've had in Lagos. He took his time, the lineup was sharp, and it stayed fresh for two weeks. I won't go anywhere else.",
   },
   {
-    name: "Mutiu Shola",
-    service: "Classic Haircut",
-    rating: 5,
-    text: "The atmosphere is relaxed, the service is excellent, and the haircut always comes out looking fresh. Definitely my favourite barbershop in town.",
-  },
-  {
-    name: "Samuel Adeyemi",
+    name: "Tunde Adeyemi",
     service: "Beard Trim",
     rating: 5,
-    text: "Neat lines, clean finish and no waiting around. I walk out feeling sharp every single time.",
+    text: "My beard had never looked this neat. Clean shaping, hot towel, and no rush at all. Very professional and the shop is always tidy.",
+  },
+  {
+    name: "Emeka Nwosu",
+    service: "Home Service",
+    rating: 5,
+    text: "He came to my house on a busy Saturday, on time, and cut me and my two sons. Great work and no stress of sitting in traffic. Highly recommended.",
   },
 ];
 
+const serif = { fontFamily: "'Playfair Display', Georgia, serif" };
+
 const Reviews = () => {
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const touchStart = useRef(null);
+
+  const total = reviews.length;
+  const next = () => setIndex((i) => (i + 1) % total);
+  const prev = () => setIndex((i) => (i - 1 + total) % total);
+
+  useEffect(() => {
+    // Remove this init if you already call AOS.init() once in your layout
+    AOS.init({ duration: 1000, easing: "ease-out-cubic", once: true });
+  }, []);
+
+  // Auto-slide, pauses while the mouse is over the slider
+  useEffect(() => {
+    if (paused) return;
+    const timer = setInterval(next, AUTO_SLIDE_MS);
+    return () => clearInterval(timer);
+  }, [paused, index]);
+
+  const onTouchStart = (e) => {
+    touchStart.current = e.touches[0].clientX;
+  };
+
+  const onTouchEnd = (e) => {
+    if (touchStart.current === null) return;
+    const diff = touchStart.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) next();
+      else prev();
+    }
+    touchStart.current = null;
+  };
+
   return (
-    <section
-      id="reviews"
-      className="relative overflow-x-hidden bg-cover bg-fixed bg-center"
-      style={{ backgroundImage: "url('/banner-3.webp')" }}
-    >
-      <div className="absolute inset-0 bg-black/55" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-[#15110E] to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#15110E] to-transparent" />
+    <section id="reviews" className="relative overflow-hidden py-20 sm:py-28">
+      {/* Background image */}
+      <Image
+        src={BG_IMAGE}
+        alt=""
+        fill
+        sizes="100vw"
+        quality={90}
+        className="object-cover"
+      />
 
-      <div className="relative z-10 mx-auto max-w-5xl px-6 py-24">
-        {reviews.map((review) => (
-          <div
-            key={review.name}
-            data-aos="fade-left"
-            data-aos-duration="1000"
-            className="flex min-h-[70vh] flex-col justify-center text-white"
-          >
-            <span className={`${playfair.className} text-7xl leading-none text-[#B89B5E]`}>
-              &ldquo;
-            </span>
+      <div className="relative z-10 mx-auto max-w-3xl px-4">
+        {/* Label */}
+        <p
+          data-aos="fade-down"
+          className="flex items-center justify-center gap-4 text-xl font-extrabold uppercase tracking-[0.2em] text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] sm:text-3xl"
+        >
+          <span className="hidden h-1 w-10 bg-[#fdb515] sm:block" />
+          Testimonials
+          <span className="hidden h-1 w-10 bg-[#fdb515] sm:block" />
+        </p>
 
-            <p className={`${playfair.className} mt-2 text-2xl leading-relaxed md:text-4xl`}>
-              {review.text}
-            </p>
+        {/* Slider */}
+        <div
+          data-aos="fade-up"
+          className="mt-10"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+        >
+          <div className="overflow-hidden">
+            <div
+              className="flex transition-transform duration-700 ease-out"
+              style={{ transform: `translateX(-${index * 100}%)` }}
+            >
+              {reviews.map(({ name, service, rating, text }) => (
+                <div key={name} className="w-full shrink-0">
+                  <article className="border border-white/20 bg-black/70 p-7 text-white sm:p-10">
+                    <Quote
+                      className="h-9 w-9 fill-[#fdb515] text-[#fdb515] sm:h-11 sm:w-11"
+                      aria-hidden
+                    />
 
-            <div className="mt-8 border-t border-white/30 pt-6">
-              <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#B89B5E] text-lg font-bold">
-                  {review.name.charAt(0)}
+                    <div
+                      className="mt-4 flex gap-1"
+                      role="img"
+                      aria-label={`${rating} out of 5 stars`}
+                    >
+                      {Array.from({ length: rating }).map((_, s) => (
+                        <Star
+                          key={s}
+                          className="h-5 w-5 fill-[#fdb515] text-[#fdb515]"
+                          aria-hidden
+                        />
+                      ))}
+                    </div>
+
+                    <p
+                      className="mt-5 text-lg leading-relaxed sm:text-2xl"
+                      style={serif}
+                    >
+                      {text}
+                    </p>
+
+                    <div className="mt-7 flex items-center gap-4 border-t border-white/20 pt-5">
+                      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#fdb515] text-lg font-bold text-black">
+                        {name.charAt(0)}
+                      </span>
+                      <span className="leading-tight">
+                        <span className="block font-bold">{name}</span>
+                        <span className="block text-sm text-white/70">
+                          {service}
+                        </span>
+                      </span>
+                    </div>
+                  </article>
                 </div>
-                <div>
-                  <p className="font-semibold">{review.name}</p>
-                  <p className="text-sm text-gray-300">{review.service}</p>
-                  <p className="text-sm text-[#B89B5E]">
-                    {"★".repeat(review.rating)}{" "}
-                    <span className="text-white">{review.rating}</span>
-                  </p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
-        ))}
+        </div>
+
+        {/* Dots */}
+        <div className="mt-6 flex justify-center gap-2">
+          {reviews.map((r, i) => (
+            <button
+              key={r.name}
+              type="button"
+              onClick={() => setIndex(i)}
+              aria-label={`Go to review ${i + 1}`}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                i === index ? "w-8 bg-[#fdb515]" : "w-2 bg-white/50"
+              }`}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );
