@@ -7,7 +7,7 @@ const services = ["Haircuts", "Beard Trim", "Line Up", "Fade", "Shape Up"];
 
 const serif = { fontFamily: "'Playfair Display', Georgia, serif" };
 
-export default function Hero() {
+const Hero = () => {
   return (
     <section className="relative isolate flex min-h-[640px] flex-col overflow-hidden bg-black text-white lg:min-h-screen">
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&display=swap');`}</style>
@@ -28,14 +28,14 @@ export default function Hero() {
       />
 
       {/* Content */}
-      <div className="mx-auto flex w-full max-w-6xl flex-1 items-center px-5 pb-10 pt-32 lg:px-8">
+      <div className="mx-auto flex w-full max-w-6xl flex-1 items-end px-5 pb-14 pt-32 sm:items-center sm:pb-10 lg:px-8">
         <div className="max-w-xl lg:ml-16 xl:ml-28">
           <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/90">
             Welcome to Comfort Zone
           </p>
 
           <h1
-            className="mt-4 text-5xl font-semibold leading-[1.12] sm:text-6xl lg:text-[4.25rem]"
+            className="mt-4 text-[2.15rem] font-semibold leading-[1.15] sm:text-6xl lg:text-[4.25rem]"
             style={serif}
           >
             Greatness begins
@@ -64,8 +64,8 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Services strip */}
-      <div className="mx-auto mb-8 w-full max-w-6xl px-5 lg:px-8">
+      {/* Services strip (hidden on phones) */}
+      <div className="mx-auto mb-8 hidden w-full max-w-6xl px-5 sm:block lg:px-8">
         <ul className="grid grid-cols-2 border-t border-white/20 sm:grid-cols-3 lg:grid-cols-5">
           {services.map((s) => (
             <li
@@ -79,4 +79,6 @@ export default function Hero() {
       </div>
     </section>
   );
-}
+};
+
+export default Hero;
