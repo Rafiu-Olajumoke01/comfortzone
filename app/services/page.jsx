@@ -5,7 +5,7 @@ import Image from "next/image";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { Clock, Home, MessageCircle } from "lucide-react";
-import BookNow from "@/components/BookNow/Booknow";
+import BookNow from "@/components/BookNow/BookNow";
 
 // Change to the shop's real WhatsApp number (country code first, no + or spaces)
 const WHATSAPP_NUMBER = "234XXXXXXXXXX";
