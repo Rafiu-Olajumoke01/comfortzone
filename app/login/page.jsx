@@ -18,20 +18,50 @@ export default function LoginPage() {
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
+  const getLocation = () =>
+    new Promise((resolve, reject) => {
+      if (!navigator.geolocation) return reject(new Error("no geolocation"));
+      navigator.geolocation.getCurrentPosition(
+        (pos) =>
+          resolve({
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+          }),
+        reject,
+        { enableHighAccuracy: true, timeout: 15000 }
+      );
+    });
+
   const onSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
-      const data = await api("/api/auth/login/", {
-        method: "POST",
-        body: { username: form.username.trim(), password: form.password },
-      });
+      const creds = { username: form.username.trim(), password: form.password };
+      let data;
+      try {
+        data = await api("/api/auth/login/", { method: "POST", body: creds });
+      } catch (err) {
+        if (!String(errorText(err)).includes("location access")) throw err;
+        let coords;
+        try {
+          coords = await getLocation();
+        } catch {
+          throw {
+            data: { detail: "Allow location access in your browser to sign in at the shop." },
+          };
+        }
+        data = await api("/api/auth/login/", {
+          method: "POST",
+          body: { ...creds, ...coords },
+        });
+      }
       saveTokens(data);
       localStorage.setItem("user", JSON.stringify(data.user));
       const next = new URLSearchParams(window.location.search).get("next");
       const safe = next && next.startsWith("/") && !next.startsWith("//");
-      router.push(safe ? next : "/booking");
+      const home = data.user?.role === "barber" ? "/cz-crew" : "/booking";
+      router.push(safe ? next : home);
     } catch (err) {
       setError(errorText(err));
     } finally {

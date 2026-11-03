@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Barlow } from "next/font/google";
+import { clearTokens } from "@/app/lib/api";
 
 const barlow = Barlow({ subsets: ["latin"], weight: ["500", "600", "700", "800"] });
 
@@ -18,7 +19,11 @@ const links = [
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [user, setUser] = useState(null);
   const pathname = usePathname();
+  const router = useRouter();
+  const solidPages = ["/pay", "/login", "/signup", "/booking", "/internal", "/cz-crew"];
+  const solid = solidPages.some((p) => pathname.startsWith(p));
   const isActive = (href) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
@@ -29,12 +34,29 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("user");
+      setUser(saved ? JSON.parse(saved) : null);
+    } catch {
+      setUser(null);
+    }
+  }, [pathname]);
+
+  const logout = () => {
+    clearTokens();
+    localStorage.removeItem("user");
+    setUser(null);
+    setOpen(false);
+    router.push("/login");
+  };
+
   return (
     <div className={`${barlow.className} fixed inset-x-0 top-0 z-50`}>
       {/* Navbar */}
       <header
         className={`transition-colors duration-300 ${
-          scrolled || open
+          scrolled || open || solid
             ? "border-b border-white/10 bg-black/90 backdrop-blur-md"
             : "border-b border-transparent bg-transparent"
         }`}
@@ -70,12 +92,34 @@ const Navbar = () => {
 
           {/* Right side */}
           <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="hidden text-[13px] font-bold uppercase tracking-widest text-white/80 hover:text-white md:block"
-            >
-              Login
-            </Link>
+            {user ? (
+              <>
+                {user.role === "barber" && (
+                  <Link
+                    href="/cz-crew"
+                    className="hidden text-[13px] font-bold uppercase tracking-widest text-[#f7b500] hover:text-white md:block"
+                  >
+                    Dashboard
+                  </Link>
+                )}
+                <span className="hidden text-[13px] font-bold uppercase tracking-widest text-white md:block">
+                  {user.first_name || "Account"}
+                </span>
+                <button
+                  onClick={logout}
+                  className="hidden text-[13px] font-bold uppercase tracking-widest text-white/80 hover:text-white md:block"
+                >
+                  Log out
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="hidden text-[13px] font-bold uppercase tracking-widest text-white/80 hover:text-white md:block"
+              >
+                Login
+              </Link>
+            )}
             <Link
               href="/booking"
               className="-skew-x-12 bg-[#f7b500] px-6 py-2.5 text-xs font-bold uppercase tracking-widest text-black transition hover:bg-white"
@@ -124,13 +168,34 @@ const Navbar = () => {
                 </Link>
               </li>
             ))}
+            {user?.role === "barber" && (
+              <li>
+                <Link
+                  href="/cz-crew"
+                  onClick={() => setOpen(false)}
+                  className="block py-3 text-sm font-bold uppercase tracking-widest text-[#f7b500]"
+                >
+                  Dashboard
+                </Link>
+              </li>
+            )}
             <li>
-              <Link
-                href="/login"
-                className="block py-3 text-sm font-bold uppercase tracking-widest text-white/70"
-              >
-                Login
-              </Link>
+              {user ? (
+                <button
+                  onClick={logout}
+                  className="block py-3 text-sm font-bold uppercase tracking-widest text-white/70"
+                >
+                  Log out ({user.first_name || "Account"})
+                </button>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setOpen(false)}
+                  className="block py-3 text-sm font-bold uppercase tracking-widest text-white/70"
+                >
+                  Login
+                </Link>
+              )}
             </li>
           </ul>
         )}
