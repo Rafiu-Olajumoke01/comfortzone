@@ -42,12 +42,13 @@ async function refreshAccess() {
 
 export async function api(path, { method = "GET", body, auth = false } = {}) {
   const run = () => {
-    const headers = { "Content-Type": "application/json" };
+    const isForm = typeof FormData !== "undefined" && body instanceof FormData;
+    const headers = isForm ? {} : { "Content-Type": "application/json" };
     if (auth) headers.Authorization = `Bearer ${localStorage.getItem("access")}`;
     return fetch(`${API}${path}`, {
       method,
       headers,
-      body: body ? JSON.stringify(body) : undefined,
+      body: body ? (isForm ? body : JSON.stringify(body)) : undefined,
     });
   };
 

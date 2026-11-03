@@ -55,7 +55,7 @@ const Hero = () => {
               Book Appointment
             </Link>
             <Link
-              href="#home-service"
+              href="/homeservice"
               className="inline-flex items-center justify-center rounded-sm border border-white/25 bg-black/60 px-8 py-3.5 text-[11px] font-bold uppercase tracking-widest transition-colors hover:border-[#fdb515] hover:text-[#fdb515]"
             >
               Home Service

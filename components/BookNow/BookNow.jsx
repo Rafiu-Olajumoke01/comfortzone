@@ -7,9 +7,8 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { CalendarCheck, MessageCircle } from "lucide-react";
 
-// Change these to the real details
-const BOOKING_LINK = "/booking"; // or "#contact" if you have no booking page yet
-const WHATSAPP_NUMBER = "234XXXXXXXXXX"; // country code first, no + or spaces
+const BOOKING_LINK = "/booking";
+const WHATSAPP_NUMBER = "2348033295456"; 
 const WHATSAPP_MESSAGE = "Hello Comfort Zone, I'd like to book an appointment.";
 
 // Image on the right side. Must be inside /public. null = no image.

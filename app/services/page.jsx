@@ -8,7 +8,7 @@ import { Clock, Home, MessageCircle } from "lucide-react";
 import BookNow from "@/components/BookNow/BookNow";
 import { api } from "@/app/lib/api";
 
-const WHATSAPP_NUMBER = "234XXXXXXXXXX";
+const WHATSAPP_NUMBER = "2348033295456";
 
 const HEADER_IMAGE = "/background.jpg";
 
@@ -27,7 +27,7 @@ const faqs = [
   },
   {
     q: "How do I pay?",
-    a: "We accept cash and bank transfer.",
+    a: "We accept bank transfer only. We don't take cash.",
   },
   {
     q: "What if I need to cancel or change my time?",

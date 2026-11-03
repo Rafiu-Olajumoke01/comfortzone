@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { api, clearTokens, errorText, getTokens } from "../lib/api";
 import {
   CalendarDays,
   Check,
@@ -104,6 +105,31 @@ const initials = (name) =>
     .toUpperCase();
 const whatsapp = (phone) => `https://wa.me/234${phone.replace(/^0/, "")}`;
 
+// Turns a booking from the API into the shape this page uses.
+const mapBooking = (b) => ({
+  id: b.id,
+  ref: `CZ-${b.id}`,
+  name: b.customer_name,
+  phone: b.customer_phone || "",
+  service: b.service_name,
+  amount: Number(b.service_price) || 0,
+  date: b.date,
+  time: String(b.start_time).slice(0, 5),
+  status: b.status,
+  barber: b.barber,
+  barberFull: b.barber_name,
+  paid: b.is_paid,
+  home: false,
+});
+
+const mapService = (s) => ({
+  id: s.id,
+  name: s.name,
+  price: Number(s.price) || 0,
+  duration: s.duration_minutes,
+  active: s.is_active,
+});
+
 const downloadCsv = (filename, rows) => {
   const esc = (v) => `"${String(v).replace(/"/g, '""')}"`;
   const csv = rows.map((r) => r.map(esc).join(",")).join("\n");
@@ -173,7 +199,6 @@ const seedBookings = () => {
       method: pick(METHODS),
       barber: pick(TEAM).id,
       home: svc.id === "home-service",
-      refunded: status === "cancelled" && rnd() < 0.5,
     });
   };
 
@@ -330,21 +355,29 @@ const AdminPage = () => {
   const [newSvc, setNewSvc] = useState({ name: "", price: "", duration: "30" });
 
   useEffect(() => {
-    if (REQUIRE_ADMIN) {
-      try {
-        const user = JSON.parse(localStorage.getItem("user") || "null");
-        if (!user || user.role !== "admin") {
-          window.location.href = "/login?next=/internal";
-          return;
-        }
-      } catch {
-        window.location.href = "/login?next=/internal";
-        return;
-      }
+    let user = null;
+    try {
+      user = JSON.parse(localStorage.getItem("user") || "null");
+    } catch {}
+    if (!getTokens() || !user || user.role !== "admin") {
+      clearTokens();
+      window.location.href = "/login?next=/internal";
+      return;
     }
-    setBookings(seedBookings());
+    api("/api/bookings/", { auth: true })
+      .then((list) => setBookings(list.map(mapBooking)))
+      .catch((err) => {
+        if (err?.status === 401) {
+          clearTokens();
+          window.location.href = "/login?next=/internal";
+        } else {
+          setToast(errorText(err));
+        }
+      });
     setStyles(seedStyles());
-    setServices(SERVICES_SEED);
+    api("/api/services/admin/", { auth: true })
+      .then((list) => setServices(list.map(mapService)))
+      .catch((err) => setToast(errorText(err)));
     setReady(true);
   }, []);
 
@@ -368,16 +401,13 @@ const AdminPage = () => {
     const d30 = dayKey(-29);
     const d60 = dayKey(-59);
     const total = (arr) => arr.reduce((s, b) => s + b.amount, 0);
-    const live = bookings.filter((b) => b.status !== "cancelled");
+    const live = bookings.filter((b) => b.status !== "cancelled" && b.paid);
     const last30 = live.filter((b) => b.date >= d30 && b.date <= today);
     const prev30 = live.filter((b) => b.date >= d60 && b.date < d30);
     const upcoming = live.filter((b) => b.date > today);
     const cancelled30 = bookings.filter(
       (b) => b.status === "cancelled" && b.date >= d30 && b.date <= today
     );
-    const refundsDue = bookings.filter((b) => b.status === "cancelled" && !b.refunded);
-    const refunded = bookings.filter((b) => b.status === "cancelled" && b.refunded);
-
     const week = Array.from({ length: 7 }, (_, i) => {
       const key = dayKey(i - 6);
       const [y, m, d] = key.split("-").map(Number);
@@ -417,9 +447,6 @@ const AdminPage = () => {
         last30.length + cancelled30.length
           ? Math.round((cancelled30.length / (last30.length + cancelled30.length)) * 100)
           : 0,
-      refundsDue,
-      refundsDueValue: total(refundsDue),
-      refundedValue: total(refunded),
       allTimeValue: total(live),
       week,
       weekMax,
@@ -451,29 +478,36 @@ const AdminPage = () => {
   const pending = bookings
     .filter((b) => b.status === "pending")
     .sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`));
-  const barberName = (id) => TEAM.find((t) => t.id === id)?.name.split(" ")[0] ?? "Unassigned";
+  const barberName = (id) =>
+    bookings.find((b) => b.barber === id)?.barberFull?.split(" ")[0] ?? "Unassigned";
 
   /* ----------------------------- actions ----------------------------- */
 
   const notify = (text) => setToast(text);
 
-  const setStatus = (id, status, message) => {
-    setBookings((list) => list.map((b) => (b.id === id ? { ...b, status } : b)));
-    notify(message);
+  const setStatus = async (id, status, message) => {
+    try {
+      const path =
+        status === "cancelled" ? `/api/bookings/${id}/cancel/` : `/api/bookings/${id}/status/`;
+      const updated = await api(path, {
+        method: "POST",
+        auth: true,
+        body: status === "cancelled" ? undefined : { status },
+      });
+      setBookings((list) => list.map((b) => (b.id === id ? mapBooking(updated) : b)));
+      notify(message);
+    } catch (err) {
+      notify(errorText(err));
+    }
   };
 
   const askCancel = (b) =>
     setConfirm({
       title: `Cancel ${b.name}'s booking?`,
-      body: `${money(b.amount)} was already paid. Cancelling moves it to Refunds due until you mark the refund as sent.`,
+      body: `${money(b.amount)} was already paid. Any refund is sent to the customer directly, outside this page.`,
       label: "Cancel booking",
-      run: () => setStatus(b.id, "cancelled", "Booking cancelled. Refund added to Payments."),
+      run: () => setStatus(b.id, "cancelled", "Booking cancelled."),
     });
-
-  const markRefunded = (id) => {
-    setBookings((list) => list.map((b) => (b.id === id ? { ...b, refunded: true } : b)));
-    notify("Refund marked as sent.");
-  };
 
   const bookingActions = (b) => (
     <div className="flex flex-wrap items-center gap-2">
@@ -545,26 +579,45 @@ const AdminPage = () => {
     setServicesDirty(true);
   };
 
-  const addService = () => {
+  const addService = async () => {
     const name = newSvc.name.trim();
     if (!name || !Number(newSvc.price)) return;
-    setServices((list) => [
-      ...list,
-      {
-        id: `svc-${Date.now()}`,
-        name,
-        price: Number(newSvc.price),
-        duration: Number(newSvc.duration) || 30,
-        active: true,
-      },
-    ]);
-    setNewSvc({ name: "", price: "", duration: "30" });
-    setServicesDirty(true);
+    try {
+      const created = await api("/api/services/admin/", {
+        method: "POST",
+        auth: true,
+        body: {
+          name,
+          description: "",
+          price: Number(newSvc.price),
+          duration_minutes: Number(newSvc.duration) || 30,
+          is_active: true,
+        },
+      });
+      setServices((list) => [...list, mapService(created)]);
+      setNewSvc({ name: "", price: "", duration: "30" });
+      notify("Service added.");
+    } catch (err) {
+      notify(errorText(err));
+    }
   };
 
-  const saveServices = () => {
-    setServicesDirty(false);
-    notify("Services saved. Existing bookings keep the price they were paid at.");
+  const saveServices = async () => {
+    try {
+      await Promise.all(
+        services.map((s) =>
+          api(`/api/services/admin/${s.id}/`, {
+            method: "PATCH",
+            auth: true,
+            body: { price: s.price, duration_minutes: s.duration, is_active: s.active },
+          })
+        )
+      );
+      setServicesDirty(false);
+      notify("Services saved.");
+    } catch (err) {
+      notify(errorText(err));
+    }
   };
 
   /* ----------------------------- filtered lists ----------------------------- */
@@ -587,7 +640,7 @@ const AdminPage = () => {
   const statusCount = (s) => bookings.filter((b) => s === "all" || b.status === s).length;
 
   const payState = (b) =>
-    b.status === "cancelled" ? (b.refunded ? "refunded" : "refund due") : "paid";
+    b.status === "cancelled" ? "cancelled" : "paid";
 
   const pq = payQuery.trim().toLowerCase();
   const visiblePayments = bookings
@@ -640,11 +693,6 @@ const AdminPage = () => {
               {id === "bookings" && pending.length > 0 && (
                 <span className="ml-auto bg-white px-2 text-xs font-extrabold text-black">{pending.length}</span>
               )}
-              {id === "payments" && stats.refundsDue.length > 0 && (
-                <span className="ml-auto bg-red-500 px-2 text-xs font-extrabold text-white">
-                  {stats.refundsDue.length}
-                </span>
-              )}
             </button>
           ))}
         </nav>
@@ -659,7 +707,7 @@ const AdminPage = () => {
           <div>
             <Title sub={dateLabel(today)}>{greeting()}, here is the shop</Title>
 
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-4 sm:grid-cols-3">
               <Stat
                 label="Bookings today"
                 value={todays.length}
@@ -677,11 +725,6 @@ const AdminPage = () => {
                 label="Waiting for confirmation"
                 value={pending.length}
                 note={pending.length ? "Confirm them in Bookings" : "All caught up"}
-              />
-              <Stat
-                label="Refunds to send"
-                value={money(stats.refundsDueValue)}
-                note={`${stats.refundsDue.length} cancelled ${stats.refundsDue.length === 1 ? "booking" : "bookings"}`}
               />
             </div>
 
@@ -717,7 +760,7 @@ const AdminPage = () => {
               </Panel>
 
               <Panel title="Needs your attention">
-                {pending.length === 0 && stats.refundsDue.length === 0 ? (
+                {pending.length === 0 ? (
                   <p className="text-sm text-black/60">Nothing waiting. Good work.</p>
                 ) : (
                   <ul className="space-y-3">
@@ -735,17 +778,6 @@ const AdminPage = () => {
                           onClick={() => setStatus(b.id, "confirmed", "Booking confirmed.")}
                         >
                           Confirm
-                        </button>
-                      </li>
-                    ))}
-                    {stats.refundsDue.slice(0, 3).map((b) => (
-                      <li key={b.id} className="flex items-center justify-between gap-3 border-b border-black/10 pb-3">
-                        <span className="min-w-0">
-                          <span className="block truncate text-sm font-extrabold text-black">{b.name}</span>
-                          <span className="text-xs text-red-700">Refund {money(b.amount)} due</span>
-                        </span>
-                        <button type="button" className={dangerBtn} onClick={() => markRefunded(b.id)}>
-                          Mark sent
                         </button>
                       </li>
                     ))}
@@ -969,7 +1001,7 @@ const AdminPage = () => {
         {tab === "payments" && (
           <div>
             <Title
-              sub="Every Paystack payment, and the refunds you still owe."
+              sub="Every Paystack payment."
               action={
                 <button type="button" onClick={exportPayments} className={`${smallBtn} inline-flex items-center gap-2 px-4 py-2.5`}>
                   <Download className="h-4 w-4" aria-hidden /> Export CSV
@@ -978,19 +1010,16 @@ const AdminPage = () => {
             >
               Payments
             </Title>
-
-            <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="mb-6 grid gap-4 sm:grid-cols-2">
               <Stat label="Received, last 30 days" value={money(stats.revenue30)} delta={stats.delta} note="vs previous 30" />
               <Stat label="Received, all time" value={money(stats.allTimeValue)} />
-              <Stat label="Refunds to send" value={money(stats.refundsDueValue)} note={`${stats.refundsDue.length} waiting`} />
-              <Stat label="Refunds sent" value={money(stats.refundedValue)} />
             </div>
 
             <div className="mb-4 flex flex-wrap gap-3">
               <SearchBox value={payQuery} onChange={setPayQuery} placeholder="Search name, reference or method" />
             </div>
             <div className="mb-5 flex flex-wrap gap-2">
-              {["all", "paid", "refund due", "refunded"].map((f) => (
+              {["all", "paid", "cancelled"].map((f) => (
                 <Chip key={f} active={payFilter === f} onClick={() => setPayFilter(f)}>
                   {f}
                 </Chip>
@@ -1023,12 +1052,8 @@ const AdminPage = () => {
                           <td className="px-4 py-3 text-black/70">{b.method}</td>
                           <td className="px-4 py-3 font-extrabold text-black">{money(b.amount)}</td>
                           <td className="px-4 py-3">
-                            {state === "refund due" ? (
-                              <button type="button" onClick={() => markRefunded(b.id)} className={dangerBtn}>
-                                Refund due. Mark as sent
-                              </button>
-                            ) : state === "refunded" ? (
-                              <span className="text-xs font-extrabold text-black/50">Refunded</span>
+                            {state === "cancelled" ? (
+                              <span className="text-xs font-extrabold text-black/50">Cancelled</span>
                             ) : (
                               <span className="bg-green-100 px-3 py-1 text-xs font-extrabold text-green-800">Paid</span>
                             )}
@@ -1233,7 +1258,7 @@ const AdminPage = () => {
         {tab === "services" && (
           <div>
             <Title
-              sub="Prices and durations. Past bookings keep the price they were paid at."
+              sub="Prices and durations. Changes show on the booking page straight away."
               action={
                 <button
                   type="button"

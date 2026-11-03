@@ -1,20 +1,28 @@
-import Image from "next/image";
+"use client";
 
-// Put the images in /public and match the names. Confirm the prices with the client.
-const services = [
-  { name: "Haircuts", price: "₦3,000", image: "/haircuts.jpg" },
-  { name: "Beard Trim", price: "₦2,000", image: "/beard.jpg" },
-  { name: "Line Up", price: "₦2,000", image: "/hairline.jpg" },
-  { name: "Fade", price: "₦3,500", image: "/fade.jpg" },
-  { name: "Shape Up", price: "₦2,000", image: "/newwomen.jpg" },
-  { name: "Kids Cut", price: "₦2,000", image: "/kids.jpg" },
-  { name: "Women's Cut", price: "₦5,000", image: "/women.jpg" },
-  { name: "Home Service", price: "₦10,000", image: "/homeservice.jpg" },
-];
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { api } from "@/app/lib/api";
 
 const serif = { fontFamily: "'Playfair Display', Georgia, serif" };
 
 export default function Services() {
+  const [services, setServices] = useState([]);
+
+  useEffect(() => {
+    api("/api/services/")
+      .then(setServices)
+      .catch(() => setServices([]));
+  }, []);
+
+  const items = services.map((s) => ({
+    id: s.id,
+    name: s.name,
+    price: `₦${Number(s.price).toLocaleString("en-NG")}`,
+    image: s.image || "/haircuts.jpg",
+  }));
+
   return (
     <section
       id="services"
@@ -43,9 +51,9 @@ export default function Services() {
 
         {/* Image grid */}
         <ul className="mt-14 grid grid-cols-2 gap-3 md:gap-5 lg:grid-cols-4">
-          {services.map(({ name, price, image }, i) => (
+          {items.map(({ id, name, price, image }, i) => (
             <li
-              key={name}
+              key={id}
               data-aos="zoom-in"
               data-aos-delay={(i % 4) * 120}
             >
@@ -53,6 +61,7 @@ export default function Services() {
                 <Image
                   src={image}
                   alt={name}
+                  unoptimized={image.startsWith("http")}
                   fill
                   sizes="(min-width: 1024px) 25vw, 50vw"
                   className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -86,6 +95,19 @@ export default function Services() {
             </li>
           ))}
         </ul>
+
+        <div className="mt-10 flex justify-end">
+          <Link
+            href="/services"
+            className="group inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[#fdb515] transition hover:text-white"
+          >
+            View all
+            <span
+              aria-hidden
+              className="h-px w-6 bg-current transition-all duration-300 group-hover:w-10"
+            />
+          </Link>
+        </div>
       </div>
     </section>
   );
