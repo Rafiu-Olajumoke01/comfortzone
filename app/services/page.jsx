@@ -1,50 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { Clock, Home, MessageCircle } from "lucide-react";
 import BookNow from "@/components/BookNow/BookNow";
+import { api } from "@/app/lib/api";
 
-// Change to the shop's real WhatsApp number (country code first, no + or spaces)
 const WHATSAPP_NUMBER = "234XXXXXXXXXX";
 
-// Header background photo: must be inside /public. Use a large, sharp, landscape photo.
 const HEADER_IMAGE = "/background.jpg";
-
-// SAMPLE SERVICES: replace names, prices, times and descriptions with the real ones.
-// Images must be inside /public.
-const services = [
-  {
-    name: "Classic Haircut",
-    desc: "A clean, neat cut finished with a sharp edge-up and a style that suits your face.",
-    price: "₦5,000",
-    time: "30 min",
-    image: "/haircuts.jpg",
-  },
-  {
-    name: "Fade",
-    desc: "Low, mid or high fade, blended smoothly and finished with clean lines.",
-    price: "₦6,000",
-    time: "45 min",
-    image: "/fade.jpg",
-  },
-  {
-    name: "Beard Trim",
-    desc: "Shaped, trimmed and lined up, with a hot towel to finish.",
-    price: "₦3,000",
-    time: "20 min",
-    image: "/beard.jpg",
-  },
-  {
-    name: "Line-up & Shape-up",
-    desc: "Crisp hairline and edges to keep your look sharp between full cuts.",
-    price: "₦2,000",
-    time: "15 min",
-    image: "/hairline.jpg",
-  },
-];
 
 const home = {
   name: "Home Service",
@@ -82,14 +48,29 @@ const whatsappLink = (service) =>
   )}`;
 
 const ServicesPage = () => {
+  const [services, setServices] = useState([]);
+
   useEffect(() => {
-    // Remove this init if you already call AOS.init() once in your layout
+    api("/api/services/")
+      .then(setServices)
+      .catch(() => setServices([]));
+  }, []);
+
+  const items = services.map((s) => ({
+    id: s.id,
+    name: s.name,
+    desc: s.description,
+    price: `₦${Number(s.price).toLocaleString("en-NG")}`,
+    time: `${s.duration_minutes} min`,
+    image: s.image || "/haircuts.jpg",
+  }));
+
+  useEffect(() => {
     AOS.init({ duration: 900, easing: "ease-out-cubic", once: true });
   }, []);
 
   return (
     <main>
-      {/* Page header with background image (navbar sits on top of it, like the hero) */}
       <section className="relative flex min-h-[75vh] items-center justify-center overflow-hidden border-b-4 border-[#fdb515] bg-black px-6 pb-20 pt-32 text-center text-white">
         <Image
           src={HEADER_IMAGE}
@@ -126,13 +107,12 @@ const ServicesPage = () => {
         </div>
       </section>
 
-      {/* Service list + FAQ */}
       <section className="bg-[#faf6ec] px-6 py-16 sm:py-24">
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-8 sm:grid-cols-2">
-            {services.map(({ name, desc, price, time, image }, i) => (
+            {items.map(({ id, name, desc, price, time, image }, i) => (
               <article
-                key={name}
+                key={id}
                 data-aos="fade-up"
                 data-aos-delay={(i % 2) * 100}
                 className="flex flex-col overflow-hidden border border-black/10 bg-white"
@@ -141,6 +121,7 @@ const ServicesPage = () => {
                   <Image
                     src={image}
                     alt={name}
+                    unoptimized={image.startsWith("http")}
                     fill
                     sizes="(min-width: 640px) 50vw, 100vw"
                     quality={90}
@@ -182,7 +163,6 @@ const ServicesPage = () => {
             ))}
           </div>
 
-          {/* FAQ */}
           <div className="mx-auto mt-20 max-w-3xl">
             <h2
               data-aos="fade-up"
@@ -219,7 +199,6 @@ const ServicesPage = () => {
         </div>
       </section>
 
-      {/* Home service highlight */}
       <section className="bg-black text-white">
         <div className="mx-auto grid max-w-6xl items-stretch lg:grid-cols-2">
           <div

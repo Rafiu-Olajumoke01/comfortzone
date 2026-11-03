@@ -3,24 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Clock, MapPin, MessageCircle, Phone } from "lucide-react";
+import { SHOP } from "@/app/lib/shop";
 
-// SAMPLE DETAILS: replace with the shop's real information
-const SHOP = {
-  address: "Shop address, Lagos, Nigeria",
-  phone: "+234 800 000 0000",
-  whatsapp: "234XXXXXXXXXX", // country code first, no + or spaces
-  hours: [
-    { days: "Mon - Sat", time: "9:00 AM - 8:00 PM" },
-    { days: "Sunday", time: "2:00 PM - 7:00 PM" },
-  ],
-};
-
-// Replace the "#" with the real page links
-const SOCIALS = [
-  { label: "Instagram", href: "#" },
-  { label: "TikTok", href: "#" },
-  { label: "Facebook", href: "#" },
-];
+const SOCIALS = [{ label: "Instagram", href: SHOP.instagram }];
 
 const QUICK_LINKS = [
   { label: "Home", href: "/" },
@@ -40,7 +25,6 @@ const Footer = () => {
   return (
     <footer className="bg-black text-white">
       <div className="mx-auto grid max-w-7xl gap-12 px-6 py-16 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Brand */}
         <div>
           <Link href="/" className="flex items-center gap-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-sm font-extrabold text-black">
@@ -71,7 +55,6 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* Quick links */}
         <div>
           <h3 className="text-sm font-extrabold uppercase tracking-[0.25em] text-[#fdb515]">
             Quick Links
@@ -90,7 +73,6 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* Opening hours */}
         <div>
           <h3 className="text-sm font-extrabold uppercase tracking-[0.25em] text-[#fdb515]">
             Opening Hours
@@ -111,7 +93,6 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* Contact */}
         <div>
           <h3 className="text-sm font-extrabold uppercase tracking-[0.25em] text-[#fdb515]">
             Find Us
@@ -154,7 +135,6 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Bottom bar */}
       <div className="border-t border-white/10">
         <p className="mx-auto max-w-7xl px-6 py-5 text-center text-xs text-white/50">
           &copy; {year} Comfort Zone. All rights reserved.
