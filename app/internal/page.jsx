@@ -363,6 +363,7 @@ const AdminPage = () => {
   /* ----------------------------- numbers ----------------------------- */
 
   const stats = useMemo(() => {
+    if (!ready) return null;
     const today = dayKey(0);
     const d30 = dayKey(-29);
     const d60 = dayKey(-59);
@@ -425,7 +426,7 @@ const AdminPage = () => {
       topServices: group(last30, (b) => b.service).slice(0, 5),
       methods: group(last30, (b) => b.method),
     };
-  }, [bookings]);
+  }, [bookings, ready]);
 
   if (!ready) {
     return (
