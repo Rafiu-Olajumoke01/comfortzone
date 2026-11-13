@@ -387,7 +387,13 @@ const BookingPage = () => {
                     ))}
                   </ul>
 
-                  {barbers.length > 1 && (
+                  {services.length > 0 && barbers.length === 0 && (
+  <p className="mt-6 text-sm font-semibold text-red-600">
+    No barber is available right now. Please try again later.
+  </p>
+)}
+
+{barbers.length > 1 && (
                     <div className="mt-10">
                       <h2
                         className="text-2xl font-bold italic text-black sm:text-3xl"
