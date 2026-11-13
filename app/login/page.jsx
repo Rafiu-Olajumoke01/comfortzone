@@ -60,7 +60,13 @@ export default function LoginPage() {
       localStorage.setItem("user", JSON.stringify(data.user));
       const next = new URLSearchParams(window.location.search).get("next");
       const safe = next && next.startsWith("/") && !next.startsWith("//");
-      const home = data.user?.role === "barber" ? "/cz-crew" : "/booking";
+      const u = data.user;
+      const home =
+        u?.role === "admin" || u?.is_staff || u?.is_superuser
+          ? "/internal"
+          : u?.role === "barber"
+          ? "/cz-crew"
+          : "/booking";
       router.push(safe ? next : home);
     } catch (err) {
       setError(errorText(err));
