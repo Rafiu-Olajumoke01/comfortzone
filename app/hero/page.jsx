@@ -49,7 +49,7 @@ const Hero = () => {
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
-              href="#book-now"
+              href="/booking"
               className="inline-flex items-center justify-center rounded-sm bg-[#fdb515] px-8 py-3.5 text-[11px] font-bold uppercase tracking-widest text-black transition-colors hover:bg-white"
             >
               Book Appointment
