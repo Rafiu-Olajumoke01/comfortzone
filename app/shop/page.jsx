@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { api, clearTokens, errorText, getTokens } from "../lib/api";
+import { api, errorText } from "../lib/api";
 import { BellRing, Check, Clock, Scissors } from "lucide-react";
 
 const serif = { fontFamily: "'Playfair Display', Georgia, serif" };
@@ -77,12 +77,7 @@ const ShopPage = () => {
       if (seenRef.current && pendingIds.some((id) => !seenRef.current.has(id))) beep();
       seenRef.current = new Set(pendingIds);
       setBookings(mapped);
-    } catch (err) {
-      if (err?.status === 401) {
-        clearTokens();
-        window.location.href = "/login?next=/shop";
-      }
-    }
+    } catch {}
   };
 
   const start = async () => {
@@ -96,17 +91,6 @@ const ShopPage = () => {
     } catch {}
     setStarted(true);
   };
-
-  useEffect(() => {
-    let user = null;
-    try {
-      user = JSON.parse(localStorage.getItem("user") || "null");
-    } catch {}
-    if (!getTokens() || !user || user.role !== "barber") {
-      clearTokens();
-      window.location.href = "/login?next=/shop";
-    }
-  }, []);
 
   useEffect(() => {
     if (!started) return;
