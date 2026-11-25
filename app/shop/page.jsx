@@ -34,7 +34,6 @@ const clockLabel = (d) =>
     d.getHours() >= 12 ? "PM" : "AM"
   }`;
 
-// Only what the shop needs. No phone, no email.
 const mapBooking = (b) => ({
   id: b.id,
   name: String(b.customer_name || "Customer").split(" ")[0],
@@ -49,7 +48,7 @@ const mapBooking = (b) => ({
 const ShopPage = () => {
   const [started, setStarted] = useState(false);
   const [bookings, setBookings] = useState([]);
-  const [now, setNow] = useState(new Date());
+  const [now, setNow] = useState(null);
   const [toast, setToast] = useState("");
   const [busyId, setBusyId] = useState(null);
   const audioRef = useRef(null);
@@ -111,6 +110,7 @@ const ShopPage = () => {
 
   useEffect(() => {
     if (!started) return;
+    setNow(new Date());
     load();
     const poll = setInterval(load, POLL_MS);
     const tick = setInterval(() => setNow(new Date()), 30000);
@@ -143,7 +143,7 @@ const ShopPage = () => {
     }
   };
 
-  const today = dayKey(0);
+  const today = now ? dayKey(0) : "";
   const waiting = bookings
     .filter((b) => b.status === "pending" && b.paid)
     .sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`));
@@ -171,6 +171,8 @@ const ShopPage = () => {
     );
   }
 
+  if (!now) return null;
+
   return (
     <main className="min-h-screen bg-[#faf6ec]">
       <header className="flex items-center justify-between border-b-4 border-[#fdb515] bg-black px-8 py-5">
@@ -187,7 +189,6 @@ const ShopPage = () => {
       </header>
 
       <div className="grid gap-8 p-8 lg:grid-cols-5">
-        {/* New bookings */}
         <section className="lg:col-span-3">
           <h2 className="mb-4 flex items-center gap-3 text-2xl font-bold italic text-black" style={serif}>
             <BellRing className="h-6 w-6 text-[#fdb515]" aria-hidden />
@@ -233,7 +234,6 @@ const ShopPage = () => {
           )}
         </section>
 
-        {/* Accepted today */}
         <section className="lg:col-span-2">
           <h2 className="mb-4 text-2xl font-bold italic text-black" style={serif}>
             Accepted today
