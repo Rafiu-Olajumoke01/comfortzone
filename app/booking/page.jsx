@@ -60,8 +60,6 @@ const minutesLabel = (total) => {
 const prettyDate = (day) =>
   `${DAY_NAMES[day.dow]}, ${day.dayNum} ${MONTH_NAMES[day.month].slice(0, 3)} ${day.year}`;
 
-const barberName = (b) => `${b.first_name} ${b.last_name}`.trim() || `Barber ${b.id}`;
-
 const isHome = (name) => /home/i.test(name);
 
 const toService = (s) => ({
@@ -73,11 +71,11 @@ const toService = (s) => ({
   from: isHome(s.name),
 });
 
-const createBooking = async ({ barber, service, date, time, notes }) => {
+const createBooking = async ({ service, date, time, notes }) => {
   const booking = await api("/api/bookings/", {
     method: "POST",
     auth: true,
-    body: { barber, service, date, start_time: `${time}:00`, notes },
+    body: { service, date, start_time: `${time}:00`, notes },
   });
   try {
     const pay = await api("/api/payments/initialize/", {
@@ -119,8 +117,6 @@ const BookingPage = () => {
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState("");
   const [services, setServices] = useState([]);
-  const [barbers, setBarbers] = useState([]);
-  const [barber, setBarber] = useState(null);
 
   useEffect(() => {
     AOS.init({ duration: 900, easing: "ease-out-cubic", once: true });
@@ -145,12 +141,6 @@ const BookingPage = () => {
     api("/api/services/")
       .then((list) => setServices(list.map(toService)))
       .catch(() => setServices([]));
-    api("/api/barbers/")
-      .then((list) => {
-        setBarbers(list);
-        if (list.length === 1) setBarber(list[0]);
-      })
-      .catch(() => setBarbers([]));
     try {
       const user = JSON.parse(localStorage.getItem("user") || "null");
       if (user) {
@@ -238,7 +228,7 @@ const BookingPage = () => {
   const detailsOk = details.name.trim().length > 1 && phoneOk && emailOk && homeOk;
 
   const canContinue =
-    (step === 0 && service && barber) ||
+    (step === 0 && service) ||
     (step === 1 && dateTimeOk) ||
     (step === 2 && detailsOk);
 
@@ -250,7 +240,6 @@ const BookingPage = () => {
         ? `Home service: ${details.address.trim()}, ${details.area.trim()}. People: ${details.people}.`
         : "";
       const response = await createBooking({
-        barber: barber.id,
         service: service.id,
         date: day.key,
         time: time24,
@@ -387,46 +376,6 @@ const BookingPage = () => {
                     ))}
                   </ul>
 
-                  {services.length > 0 && barbers.length === 0 && (
-  <p className="mt-6 text-sm font-semibold text-red-600">
-    No barber is available right now. Please try again later.
-  </p>
-)}
-
-{barbers.length > 1 && (
-                    <div className="mt-10">
-                      <h2
-                        className="text-2xl font-bold italic text-black sm:text-3xl"
-                        style={serif}
-                      >
-                        Choose your barber
-                      </h2>
-                      <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-                        {barbers.map((b) => (
-                          <li key={b.id}>
-                            <button
-                              type="button"
-                              onClick={() => setBarber(b)}
-                              className={`w-full border-2 p-5 text-left transition ${
-                                barber?.id === b.id
-                                  ? "border-[#fdb515] bg-[#fdb515]/10"
-                                  : "border-black/10 hover:border-black/40"
-                              }`}
-                            >
-                              <span className="block text-base font-extrabold uppercase tracking-wide text-black">
-                                {barberName(b)}
-                              </span>
-                              {b.bio && (
-                                <span className="mt-1 block text-sm text-black/60">
-                                  {b.bio}
-                                </span>
-                              )}
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
                 </div>
               )}
 
@@ -770,12 +719,6 @@ const BookingPage = () => {
                       <span className="font-bold text-black">Service</span>
                       {service.name}
                     </li>
-                    {barber && (
-                      <li className="flex justify-between gap-4 p-4">
-                        <span className="font-bold text-black">Barber</span>
-                        {barberName(barber)}
-                      </li>
-                    )}
                     <li className="flex justify-between gap-4 p-4">
                       <span className="font-bold text-black">When</span>
                       <span className="text-right">
